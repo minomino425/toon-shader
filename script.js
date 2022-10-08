@@ -121,6 +121,7 @@ class App3 {
       );
       return { width: height * this.camera.aspect, height };
     };
+    this.uniforms;
 
     // 再帰呼び出しのための this 固定
     this.render = this.render.bind(this);
@@ -221,15 +222,20 @@ class App3 {
       }
     }
 
+    this.uniforms = {
+      u_resolution: { type: "v3", value: new THREE.Vector2() },
+      u_mouse: { type: "v2", value: new THREE.Vector2() },
+      u_lightDirection: { type: "v3", value: new THREE.Vector3(0.4, 0.4, 0.4) },
+      u_gradient: { type: "f,", value: 5.0 },
+      u_inflate: { type: "f", value: 16.0 },
+      u_time: { type: "f", value: 0.0 },
+      u_isEdge: { type: "i", value: true },
+      u_ColorArray: { type: "v3v", value: this.u_ColorArray }
+    };
+
     for (let i = 0; i < 3; i++) {
       let viewSize = this.getViewSizeAtDepth();
-      this.geometry = new THREE.TorusBufferGeometry(
-        10,
-        3,
-        16,
-        100,
-        6.283185307179586
-      );
+      this.geometry = new THREE.TorusGeometry( 10, 3, 16, 100 );
       // let uniforms = {
       //   uTexture: { value: this.texture[i] },
       //   uImageAspect: {
@@ -240,9 +246,15 @@ class App3 {
       //   uPlaneAspect: { value: 8 / 5 },
       //   uTime: { value: 0 },
       // };
-      this.material = new THREE.ShaderMaterial({
+
+      this.material = new THREE.RawShaderMaterial({
         vertexShader: loadFile("./shader.vert"),
         fragmentShader: loadFile("./shader.frag"),
+        // wireframe: this.materialParam.useWireframe,
+        transparent: true,
+        uniforms: this.uniforms,
+        flatShading: true,
+        side: THREE.DoubleSide
       });
       this.materialArray.push(this.material);
       this.mesh = new THREE.Mesh(this.geometry, this.materialArray[i]);
