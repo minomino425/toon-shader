@@ -2,14 +2,19 @@
 import * as THREE from "../lib/three.module.js";
 import { OrbitControls } from "../lib/OrbitControls.js";
 
+import { GUI } from "https://unpkg.com/three@0.127.0/examples/jsm/libs/dat.gui.module.js";
+
+const gui = new GUI({ width: 300 });
+gui.open();
+
 // DOM がパースされたことを検出するイベントで App3 クラスをインスタンス化する
 window.addEventListener(
   "DOMContentLoaded",
   () => {
     const app = new App3();
     // app.load().then(() => {
-      app.init();
-      app.render();
+    app.init();
+    app.render();
     // });
   },
   false
@@ -24,13 +29,13 @@ class App3 {
    */
   static get CAMERA_PARAM() {
     return {
-      fovy: 35,
+      fovy: 45,
       aspect: window.innerWidth / window.innerHeight,
-      near: 0.1,
-      far: 20.0,
+      near: 1,
+      far: 300.0,
       x: 0.0,
-      y: -1.0,
-      z: 8.0,
+      y: 0.0,
+      z: 0.0,
       lookAt: new THREE.Vector3(0.0, 0.0, 0.0),
     };
   }
@@ -184,6 +189,11 @@ class App3 {
     this.camera.position.set(0, 0, 2);
     this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
 
+    const gui = new GUI();
+    const cameraFolder = gui.addFolder("Camera");
+    cameraFolder.add(this.camera.position, "z", 0, 10);
+    cameraFolder.open();
+
     // ディレクショナルライト（平行光源）
     this.directionalLight = new THREE.DirectionalLight(
       App3.DIRECTIONAL_LIGHT_PARAM.color,
@@ -230,12 +240,12 @@ class App3 {
       u_inflate: { type: "f", value: 16.0 },
       u_time: { type: "f", value: 0.0 },
       u_isEdge: { type: "i", value: true },
-      u_ColorArray: { type: "v3v", value: this.u_ColorArray }
+      u_ColorArray: { type: "v3v", value: this.u_ColorArray },
     };
 
     for (let i = 0; i < 3; i++) {
       let viewSize = this.getViewSizeAtDepth();
-      this.geometry = new THREE.TorusGeometry( 10, 3, 16, 100 );
+      this.geometry = new THREE.TorusGeometry(1, 0.1, 64, 100);
       // let uniforms = {
       //   uTexture: { value: this.texture[i] },
       //   uImageAspect: {
@@ -247,15 +257,16 @@ class App3 {
       //   uTime: { value: 0 },
       // };
 
-      this.material = new THREE.RawShaderMaterial({
-        vertexShader: loadFile("./shader.vert"),
-        fragmentShader: loadFile("./shader.frag"),
-        // wireframe: this.materialParam.useWireframe,
-        transparent: true,
-        uniforms: this.uniforms,
-        flatShading: true,
-        side: THREE.DoubleSide
-      });
+      // this.material = new THREE.ShaderMaterial({
+      //   vertexShader: loadFile("./shader.vert"),
+      //   fragmentShader: loadFile("./shader.frag"),
+      //   // wireframe: this.materialParam.useWireframe,
+      //   transparent: true,
+      //   uniforms: this.uniforms,
+      //   // flatShading: true,
+      //   side: THREE.DoubleSide,
+      // });
+      this.material = new THREE.MeshLambertMaterial({ color: 0x6699ff });
       this.materialArray.push(this.material);
       this.mesh = new THREE.Mesh(this.geometry, this.materialArray[i]);
       this.planeArray.push(this.mesh);
