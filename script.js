@@ -4,8 +4,8 @@ import { OrbitControls } from "../lib/OrbitControls.js";
 
 import { GUI } from "https://unpkg.com/three@0.127.0/examples/jsm/libs/dat.gui.module.js";
 
-const gui = new GUI({ width: 300 });
-gui.open();
+// const gui = new GUI({ width: 300 });
+// gui.open();
 
 // DOM がパースされたことを検出するイベントで App3 クラスをインスタンス化する
 window.addEventListener(
@@ -189,10 +189,10 @@ class App3 {
     this.camera.position.set(0, 0, 2);
     this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
 
-    const gui = new GUI();
-    const cameraFolder = gui.addFolder("Camera");
-    cameraFolder.add(this.camera.position, "z", 0, 10);
-    cameraFolder.open();
+    // const gui = new GUI();
+    // const cameraFolder = gui.addFolder("Camera");
+    // cameraFolder.add(this.camera.position, "z", 0, 10);
+    // cameraFolder.open();
 
     // ディレクショナルライト（平行光源）
     this.directionalLight = new THREE.DirectionalLight(
@@ -232,53 +232,41 @@ class App3 {
       }
     }
 
-    this.uniforms = {
-      u_resolution: { type: "v3", value: new THREE.Vector2() },
-      u_mouse: { type: "v2", value: new THREE.Vector2() },
-      u_lightDirection: { type: "v3", value: new THREE.Vector3(0.4, 0.4, 0.4) },
-      u_gradient: { type: "f,", value: 5.0 },
-      u_inflate: { type: "f", value: 16.0 },
-      u_time: { type: "f", value: 0.0 },
-      u_isEdge: { type: "i", value: true },
-      u_ColorArray: { type: "v3v", value: this.u_ColorArray },
-    };
+    this.uniforms = THREE.UniformsUtils.merge([
+      THREE.UniformsLib["lights"],
+      {
+        diffuse: {
+          type: "c",
+          value: new THREE.Color(0xffccdd),
+        },
+        steps: {
+          type: "f",
+          value: 4,
+        },
+        intensity: {
+          type: "f",
+          value: 0.5,
+        },
+      },
+    ]);
 
-    for (let i = 0; i < 3; i++) {
-      let viewSize = this.getViewSizeAtDepth();
-      this.geometry = new THREE.TorusGeometry(1, 0.1, 64, 100);
-      // let uniforms = {
-      //   uTexture: { value: this.texture[i] },
-      //   uImageAspect: {
-      //     value:
-      //       this.texture[i].source.data.naturalWidth /
-      //       this.texture[i].source.data.naturalHeight,
-      //   }, //画像のアスペクト
-      //   uPlaneAspect: { value: 8 / 5 },
-      //   uTime: { value: 0 },
-      // };
-
-      // this.material = new THREE.ShaderMaterial({
-      //   vertexShader: loadFile("./shader.vert"),
-      //   fragmentShader: loadFile("./shader.frag"),
-      //   // wireframe: this.materialParam.useWireframe,
-      //   transparent: true,
-      //   uniforms: this.uniforms,
-      //   // flatShading: true,
-      //   side: THREE.DoubleSide,
-      // });
-      this.material = new THREE.MeshLambertMaterial({ color: 0x6699ff });
+    for (let i = 0; i < 1; i++) {
+      this.geometry = new THREE.TorusGeometry(0.2, 0.1, 1000, 1000);
+      this.material = new THREE.ShaderMaterial({
+        vertexShader: loadFile("./shader.vert"),
+        fragmentShader: loadFile("./shader.frag"),
+        uniforms: this.uniforms,
+        // side: THREE.DoubleSide,
+      });
       this.materialArray.push(this.material);
       this.mesh = new THREE.Mesh(this.geometry, this.materialArray[i]);
       this.planeArray.push(this.mesh);
       this.scene.add(this.planeArray[i]);
+
+
     }
 
-    let speed = 0;
-    let rotation = 0;
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    window.addEventListener("wheel", (event) => {
-      speed += event.deltaY * 0.0002;
-    });
   }
 
   /**
@@ -289,5 +277,7 @@ class App3 {
     requestAnimationFrame(this.render);
     // レンダラーで描画
     this.renderer.render(this.scene, this.camera);
+    this.mesh.rotation.x += 0.01;
+    this.mesh.rotation.y += 0.005;
   }
 }

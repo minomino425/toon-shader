@@ -1,19 +1,21 @@
-precision mediump float;
+#define MAX_POINT_LIGHTS 1
 
-uniform mat4 invMatrix;
-uniform vec3 lightDirection;
-uniform sampler2D textures;
-uniform vec4 edgeColor;
+uniform vec3 diffuse;
+uniform float steps;
+uniform float intensity;
+varying vec3 vPos;
 varying vec3 vNormal;
-varying vec4 vColor;
+uniform vec3 pointLightColor[MAX_POINT_LIGHTS];
+uniform vec3 pointLightPosition[MAX_POINT_LIGHTS];
+uniform float pointLightDistance[MAX_POINT_LIGHTS];
 
 void main() {
-  if(edgeColor.a > 0.0) {
-    gl_FragColor = edgeColor;
-  } else {
-    vec3 invLight = normalize(invMatrix * vec4(lightDirection, 0.0)).xyz;
-    float diffuse = clamp(dot(vNormal, invLight), 0.0, 1.0);
-    vec4 smpColor = texture2D(textures, vec2(diffuse, 0.0));
-    gl_FragColor = vColor * smpColor;
+  vec3 n = normalize(vNormal);
+  float i = intensity;
+  for(int l = 0; l < MAX_POINT_LIGHTS; l++) {
+    vec3 lightDirection = normalize(vPos - pointLightPosition[l]);
+    i += dot(vec3(-lightDirection),n);
   }
+  i = ceil(i * steps)/steps;
+  gl_FragColor = vec4(diffuse, 1.0) + vec4(i);
 }
