@@ -44,7 +44,7 @@ class App3 {
    */
   static get RENDERER_PARAM() {
     return {
-      clearColor: 0xe3d7bf,
+      clearColor: 0xE97F8C,
       width: window.innerWidth,
       height: window.innerHeight,
     };
@@ -237,7 +237,7 @@ class App3 {
       {
         diffuse: {
           type: "c",
-          value: new THREE.Color(0xffccdd),
+          value: new THREE.Color(0xEEBB9B),
         },
         steps: {
           type: "f",
