@@ -256,7 +256,7 @@ class App3 {
         vertexShader: loadFile("./shader.vert"),
         fragmentShader: loadFile("./shader.frag"),
         uniforms: this.uniforms,
-        // side: THREE.DoubleSide,
+        side: THREE.DoubleSide,
       });
       this.materialArray.push(this.material);
       this.mesh = new THREE.Mesh(this.geometry, this.materialArray[i]);
