@@ -33,10 +33,10 @@ class App3 {
       aspect: window.innerWidth / window.innerHeight,
       near: 1,
       far: 300.0,
-      x: 0.0,
+      x: 2.0,
       y: 0.0,
       z: 0.0,
-      lookAt: new THREE.Vector3(0.0, 0.0, 0.0),
+      // lookAt: new THREE.Vector3(0.0, 0.0, 0.0),
     };
   }
   /**
@@ -44,7 +44,7 @@ class App3 {
    */
   static get RENDERER_PARAM() {
     return {
-      clearColor: 0xE97F8C,
+      clearColor: 0xe97f8c,
       width: window.innerWidth,
       height: window.innerHeight,
     };
@@ -119,6 +119,7 @@ class App3 {
     this.materialArray = [];
     this.material;
     this.mesh;
+    this.meshArray = [];
     this.getViewSizeAtDepth = (depth = 0) => {
       const fovInRadians = (this.camera.fov * Math.PI) / 180;
       const height = Math.abs(
@@ -186,8 +187,8 @@ class App3 {
       0.001,
       1000
     );
-    this.camera.position.set(0, 0, 2);
-    this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
+    this.camera.position.set(2, -1, 2);
+    // this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
 
     // const gui = new GUI();
     // const cameraFolder = gui.addFolder("Camera");
@@ -237,7 +238,7 @@ class App3 {
       {
         diffuse: {
           type: "c",
-          value: new THREE.Color(0xEEBB9B),
+          value: new THREE.Color(0xeebb9b),
         },
         steps: {
           type: "f",
@@ -250,20 +251,37 @@ class App3 {
       },
     ]);
 
-    for (let i = 0; i < 1; i++) {
-      this.geometry = new THREE.TorusGeometry(0.2, 0.1, 1000, 1000);
-      this.material = new THREE.ShaderMaterial({
-        vertexShader: loadFile("./shader.vert"),
-        fragmentShader: loadFile("./shader.frag"),
-        uniforms: this.uniforms,
-        side: THREE.DoubleSide,
-      });
-      this.materialArray.push(this.material);
-      this.mesh = new THREE.Mesh(this.geometry, this.materialArray[i]);
-      this.planeArray.push(this.mesh);
-      this.scene.add(this.planeArray[i]);
+    // for (let i = 0; i < 3; i++) {
+    //   this.materialArray.push(this.material);
+    //   this.mesh = new THREE.Mesh(this.geometry, this.materialArray[i]);
+    //   this.mesh.position.x = i;
+    //   this.planeArray.push(this.mesh);
+    //   this.scene.add(this.planeArray[i]);
+    // }
 
+    // 共通のジオメトリ、マテリアルから、複数のメッシュインスタンスを作成する @@@
+    const COUNT = 100;
+    const TRANSFORM_SCALE = 10.0;
+    this.geometry = new THREE.TorusGeometry(0.2, 0.1, 1000, 1000);
+    this.material = new THREE.ShaderMaterial({
+      vertexShader: loadFile("./shader.vert"),
+      fragmentShader: loadFile("./shader.frag"),
+      uniforms: this.uniforms,
+      side: THREE.DoubleSide,
+    });
 
+    // this.meshArray = [];
+    for (let i = 0; i < COUNT; ++i) {
+      // トーラスメッシュのインスタンスを生成
+      const stars = new THREE.Mesh(this.geometry, this.material);
+      // 座標をランダムに散らす
+      stars.position.x = (Math.random() * 2.0 - 1.0) * TRANSFORM_SCALE;
+      stars.position.y = (Math.random() * 2.0 - 1.0) * TRANSFORM_SCALE;
+      stars.position.z = (Math.random() * 2.0 - 1.0) * TRANSFORM_SCALE;
+      // シーンに追加する
+      this.scene.add(stars);
+      // 配列に入れておく
+      this.meshArray.push(stars);
     }
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -277,7 +295,9 @@ class App3 {
     requestAnimationFrame(this.render);
     // レンダラーで描画
     this.renderer.render(this.scene, this.camera);
-    this.mesh.rotation.x += 0.01;
-    this.mesh.rotation.y += 0.005;
+    for (let i = 0; i < this.meshArray.length; i++) {
+     this.meshArray[i].rotation.x += Math.random() * 0.05;
+     this.meshArray[i].rotation.y += Math.random() * 0.1;
+    }
   }
 }
