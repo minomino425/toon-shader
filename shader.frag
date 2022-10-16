@@ -1,4 +1,4 @@
-#define MAX_POINT_LIGHTS 2
+#define MAX_POINT_LIGHTS 1
 
 uniform vec3 diffuse;
 uniform float steps;
@@ -16,6 +16,6 @@ void main() {
     vec3 lightDirection = normalize(vPos - pointLightPosition[l]);
     i += dot(vec3(-lightDirection),n);
   }
-  i = ceil(i * steps)/steps;
+  i = ceil(i * steps);
   gl_FragColor = vec4(diffuse, 1.0) + vec4(i);
 }

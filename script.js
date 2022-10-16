@@ -67,7 +67,7 @@ class App3 {
   static get AMBIENT_LIGHT_PARAM() {
     return {
       color: 0xffffff, // 光の色
-      intensity: 0.5, // 光の強度
+      intensity: 0.1, // 光の強度
     };
   }
   /**
@@ -187,32 +187,13 @@ class App3 {
       0.001,
       1000
     );
-    this.camera.position.set(2, -1, 2);
+    this.camera.position.set(0, 0, -5);
     // this.camera.lookAt(App3.CAMERA_PARAM.lookAt);
 
     // const gui = new GUI();
     // const cameraFolder = gui.addFolder("Camera");
     // cameraFolder.add(this.camera.position, "z", 0, 10);
     // cameraFolder.open();
-
-    // ディレクショナルライト（平行光源）
-    this.directionalLight = new THREE.DirectionalLight(
-      App3.DIRECTIONAL_LIGHT_PARAM.color,
-      App3.DIRECTIONAL_LIGHT_PARAM.intensity
-    );
-    this.directionalLight.position.set(
-      App3.DIRECTIONAL_LIGHT_PARAM.x,
-      App3.DIRECTIONAL_LIGHT_PARAM.y,
-      App3.DIRECTIONAL_LIGHT_PARAM.z
-    );
-    this.scene.add(this.directionalLight);
-
-    // アンビエントライト（環境光）
-    this.ambientLight = new THREE.AmbientLight(
-      App3.AMBIENT_LIGHT_PARAM.color,
-      App3.AMBIENT_LIGHT_PARAM.intensity
-    );
-    this.scene.add(this.ambientLight);
 
     function loadFile(url, data) {
       var request = new XMLHttpRequest();
@@ -233,23 +214,13 @@ class App3 {
       }
     }
 
-    this.uniforms = THREE.UniformsUtils.merge([
-      THREE.UniformsLib["lights"],
-      {
-        diffuse: {
-          type: "c",
-          value: new THREE.Color(0xeebb9b),
-        },
-        steps: {
-          type: "f",
-          value: 4,
-        },
-        intensity: {
-          type: "f",
-          value: 0.5,
-        },
-      },
-    ]);
+    // ランダムな色取得
+    function _getRandomColor() {
+      const r = ~~(Math.random() * 255);
+      const g = ~~(Math.random() * 255);
+      const b = ~~(Math.random() * 255);
+      return "rgb(" + r + ", " + g + ", " + b + ")";
+    }
 
     // for (let i = 0; i < 3; i++) {
     //   this.materialArray.push(this.material);
@@ -260,18 +231,37 @@ class App3 {
     // }
 
     // 共通のジオメトリ、マテリアルから、複数のメッシュインスタンスを作成する @@@
-    const COUNT = 100;
-    const TRANSFORM_SCALE = 10.0;
+    const COUNT = 20;
+    const TRANSFORM_SCALE = 2.0;
     this.geometry = new THREE.TorusGeometry(0.2, 0.1, 1000, 1000);
-    this.material = new THREE.ShaderMaterial({
-      vertexShader: loadFile("./shader.vert"),
-      fragmentShader: loadFile("./shader.frag"),
-      uniforms: this.uniforms,
-      side: THREE.DoubleSide,
-    });
 
     // this.meshArray = [];
     for (let i = 0; i < COUNT; ++i) {
+      this.uniforms = THREE.UniformsUtils.merge([
+        THREE.UniformsLib["lights"],
+        {
+          diffuse: {
+            type: "c",
+            value: new THREE.Color(_getRandomColor()),
+          },
+          steps: {
+            type: "f",
+            value: 1,
+          },
+          intensity: {
+            type: "f",
+            value: 0.5,
+          },
+        },
+      ]);
+
+      this.material = new THREE.ShaderMaterial({
+        vertexShader: loadFile("./shader.vert"),
+        fragmentShader: loadFile("./shader.frag"),
+        uniforms: this.uniforms,
+        side: THREE.DoubleSide,
+      });
+
       // トーラスメッシュのインスタンスを生成
       const stars = new THREE.Mesh(this.geometry, this.material);
       // 座標をランダムに散らす
@@ -296,8 +286,8 @@ class App3 {
     // レンダラーで描画
     this.renderer.render(this.scene, this.camera);
     for (let i = 0; i < this.meshArray.length; i++) {
-     this.meshArray[i].rotation.x += Math.random() * 0.05;
-     this.meshArray[i].rotation.y += Math.random() * 0.1;
+      this.meshArray[i].rotation.x += Math.random() * 0.05;
+      this.meshArray[i].rotation.y += Math.random() * 0.1;
     }
   }
 }
