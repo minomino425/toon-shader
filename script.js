@@ -214,12 +214,14 @@ class App3 {
       }
     }
 
+    
+
     // ランダムな色取得
     function _getRandomColor() {
       const r = ~~(Math.random() * 255);
       const g = ~~(Math.random() * 255);
       const b = ~~(Math.random() * 255);
-      return "rgb(" + r + ", " + g + ", " + b + ")";
+      return "rgb(" + r + ", " + g + ", " + b + ", 0.5 )";
     }
 
     // for (let i = 0; i < 3; i++) {
